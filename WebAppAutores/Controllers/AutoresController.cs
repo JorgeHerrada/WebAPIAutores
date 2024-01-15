@@ -24,6 +24,13 @@ namespace WebAppAutores.Controllers
             return await context.Autores.Include(x => x.Libros).ToListAsync();
         }
 
+        // add '/primero' to route in order to tell apart the TWO GET requests
+        [HttpGet("primero")] // api/autores/primero
+        public async Task<ActionResult<Autor>> PrimerAutor()
+        {
+            return await context.Autores.FirstOrDefaultAsync();
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post(Autor autor)
         {
