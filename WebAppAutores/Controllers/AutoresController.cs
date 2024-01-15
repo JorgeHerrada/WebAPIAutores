@@ -33,7 +33,7 @@ namespace WebAppAutores.Controllers
             await context.SaveChangesAsync();
 
             // HTTP 200 code
-            return Ok();
+            return Ok(); 
         }
     }
 }
