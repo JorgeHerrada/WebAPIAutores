@@ -4,8 +4,9 @@ using WebAppAutores.Controllers.Entidades;
 
 namespace WebAppAutores.Controllers
 {
-    [ApiController]
-    [Route("api/autores")]
+    // decorators
+    [ApiController]         // defines its an api controler
+    [Route("api/autores")]  // defines the api route
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -20,7 +21,7 @@ namespace WebAppAutores.Controllers
         public async Task<ActionResult<List<Autor>>> Get()
         {
             // return all the autors in DB
-            return await context.Autores.ToListAsync();
+            return await context.Autores.Include(x => x.Libros).ToListAsync();
         }
 
         [HttpPost]
@@ -29,7 +30,7 @@ namespace WebAppAutores.Controllers
             // autor marked to be added but not added yet
             context.Add(autor);
 
-            // adding what is added in the context
+            // save it to the context
             await context.SaveChangesAsync();
 
             // HTTP 200 code
@@ -74,6 +75,7 @@ namespace WebAppAutores.Controllers
 
             // prepare deletion of the author with the assigned ID
             context.Remove(new Autor() { Id = id }); ;
+            // execute DB update
             await context.SaveChangesAsync();
 
             return Ok();
