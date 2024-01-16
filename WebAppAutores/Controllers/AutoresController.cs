@@ -16,8 +16,11 @@ namespace WebAppAutores.Controllers
             this.context = context;
         }
 
+        // we can have multiple routes pointing to this endpoint
+        [HttpGet]               // api/autores -> based on the Route above
+        [HttpGet("listado")]    // api/autores/listado -> adding custome one 
+        [HttpGet("/listado")]    // /listado -> overwrites the Route when using the prefix '/'
         // the async funcions MUST return a Task<>
-        [HttpGet]
         public async Task<ActionResult<List<Autor>>> Get()
         {
             // return all the autors in DB
