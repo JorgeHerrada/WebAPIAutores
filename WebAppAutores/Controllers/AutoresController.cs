@@ -34,6 +34,33 @@ namespace WebAppAutores.Controllers
             return await context.Autores.FirstOrDefaultAsync();
         }
 
+        // Returns Autor based on ID received
+        [HttpGet("{id:int}/{param2=whatever}/{param3?}")] 
+        // ':int' its a restriction on the route valiable
+        // '=someValue' sets a default value 
+        // '?' makes the param optional, it will be null if not provided
+        public async Task<ActionResult<Autor>> Get(int id, string param2, string param3)
+        {
+            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (autor == null) {
+                return NotFound();
+            }
+            return autor;
+        }
+
+        // Returns Autor based on Nombre
+        [HttpGet("{nombre}")] 
+        public async Task<ActionResult<Autor>> Get(string nombre)
+        {
+            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));
+
+            if (autor == null) {
+                return NotFound();
+            }
+            return autor;
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post(Autor autor)
         {
