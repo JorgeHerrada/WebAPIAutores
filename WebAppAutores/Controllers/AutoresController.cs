@@ -65,6 +65,13 @@ namespace WebAppAutores.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Autor autor)
         {
+            var autorExist = await context.Autores.AnyAsync(x => x.Nombre == autor.Nombre);
+
+            if (autorExist)
+            {
+                return BadRequest($"The Autor {autor.Nombre} already exists");
+            }
+
             // autor marked to be added but not added yet
             context.Add(autor);
 
