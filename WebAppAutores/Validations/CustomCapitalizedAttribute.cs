@@ -16,7 +16,7 @@ namespace WebAppAutores.Validations
 
             if (firstChar != firstChar.ToUpper())
             {
-                return new ValidationResult("The field must be Capitalized");
+                return new ValidationResult("The field must be Capitalized (Attribute)");
             }
 
             return ValidationResult.Success;
