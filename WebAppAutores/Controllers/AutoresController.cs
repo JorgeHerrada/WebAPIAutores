@@ -28,8 +28,9 @@ namespace WebAppAutores.Controllers
         }
 
         // add '/primero' to route in order to tell apart the TWO GET requests
-        [HttpGet("primero")] // api/autores/primero
-        public async Task<ActionResult<Autor>> PrimerAutor()
+        [HttpGet("primero")] // api/autores/primero?nombre=felipe
+        // after '?' the query params get concatenated
+        public async Task<ActionResult<Autor>> PrimerAutor([FromHeader] int myValue, [FromQuery] string nombre)
         {
             return await context.Autores.FirstOrDefaultAsync();
         }
@@ -51,7 +52,7 @@ namespace WebAppAutores.Controllers
 
         // Returns Autor based on Nombre
         [HttpGet("{nombre}")] 
-        public async Task<ActionResult<Autor>> Get(string nombre)
+        public async Task<ActionResult<Autor>> Get([FromRoute]string nombre)
         {
             var autor = await context.Autores.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));
 
@@ -62,7 +63,7 @@ namespace WebAppAutores.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(Autor autor)
+        public async Task<ActionResult> Post([FromBody] Autor autor)
         {
             // autor marked to be added but not added yet
             context.Add(autor);
