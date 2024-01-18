@@ -12,11 +12,43 @@ namespace WebAppAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IServicio servicio;
+        private readonly ServicioTransient servicioTransient;
+        private readonly ServicioScoped servicioScoped;
+        private readonly ServicioSingleton servicioSingleton;
 
-        public AutoresController(ApplicationDbContext context, IServicio servicio)
+        public AutoresController(
+            ApplicationDbContext context,
+            IServicio servicio,
+            ServicioTransient servicioTransient,
+            ServicioScoped servicioScoped,
+            ServicioSingleton servicioSingleton
+        )
         {
             this.context = context;
             this.servicio = servicio;
+            this.servicioTransient = servicioTransient;
+            this.servicioScoped = servicioScoped;
+            this.servicioSingleton = servicioSingleton;
+        }
+
+        [HttpGet("GUID")]
+        public ActionResult ObtenerGuids()
+        {
+            return Ok(new
+            {
+                // Transient will be different on each time
+                AutoresController_Transient = servicioTransient.Guid,
+                ServicioA_Transient = servicio.ObtenerTransient(),
+
+                // Scoped will be the same cause is the same context
+                // it will only change on the next HTTP request 
+                AutoresController_Scoped = servicioScoped.Guid,
+                ServicioA_Scoped = servicio.ObtenerScoped(),
+                
+                // Singleton will be always the same for all contexts and requests
+                AutoresController_Singleton = servicioSingleton.Guid,
+                ServicioA_Singleton = servicio.ObtenerSingleton()
+            });
         }
 
         // we can have multiple routes pointing to this endpoint

@@ -34,7 +34,11 @@ namespace WebAppAutores
             //services.AddScope<ServicioA>();    // just the class 
             //services.AddSingleton<ServicioA>();    // just the class 
 
-             
+            // types of services and its differences 
+            services.AddTransient<ServicioTransient>();
+            services.AddScoped<ServicioScoped>();
+            services.AddSingleton<ServicioSingleton>();
+
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
