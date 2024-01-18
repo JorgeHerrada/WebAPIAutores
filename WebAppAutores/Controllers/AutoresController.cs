@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
+using WebAppAutores.Servicios;
 
 namespace WebAppAutores.Controllers
 {
@@ -10,10 +11,12 @@ namespace WebAppAutores.Controllers
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly IServicio servicio;
 
-        public AutoresController(ApplicationDbContext context)
+        public AutoresController(ApplicationDbContext context, IServicio servicio)
         {
             this.context = context;
+            this.servicio = servicio;
         }
 
         // we can have multiple routes pointing to this endpoint
@@ -24,6 +27,7 @@ namespace WebAppAutores.Controllers
         public async Task<ActionResult<List<Autor>>> Get()
         {
             // return all the autors in DB
+            servicio.RealizarTarea();
             return await context.Autores.Include(x => x.Libros).ToListAsync();
         }
 

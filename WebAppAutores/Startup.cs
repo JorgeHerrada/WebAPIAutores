@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using WebAppAutores.Servicios;
 
 namespace WebAppAutores
 {
@@ -12,13 +13,28 @@ namespace WebAppAutores
 
         public IConfiguration Configuration { get; }
 
+
+        // dependency injection
+        // Services configuration  
+        // authom resolves all the classes dependencies
+        // what we define here gets instanciated properly with all config when used in a class
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(x => 
             x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
+            // when ApplicationDbContext is a dep, it gets instanciated properly with all configs
+            // Scope service by default 
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+
+            // When someone needs an IServicio, we send ServicioA for default
+            services.AddTransient<IServicio, ServicioA>();      // interfase and class that implements it
+            //services.AddTransient<ServicioA>();    // just the class 
+            //services.AddScope<ServicioA>();    // just the class 
+            //services.AddSingleton<ServicioA>();    // just the class 
+
+             
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
