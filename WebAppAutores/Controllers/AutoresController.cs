@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
 using WebAppAutores.Servicios;
@@ -6,6 +7,7 @@ using WebAppAutores.Servicios;
 namespace WebAppAutores.Controllers
 {
     // decorators
+    // [Authorize] // ALL endpoints protected, needs authentication
     [ApiController]         // defines its an api controler
     [Route("api/autores")]  // defines the api route
     public class AutoresController : ControllerBase
@@ -35,6 +37,7 @@ namespace WebAppAutores.Controllers
         }
 
         [HttpGet("GUID")]
+        [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
         public ActionResult ObtenerGuids()
         {
             return Ok(new
@@ -58,6 +61,8 @@ namespace WebAppAutores.Controllers
         [HttpGet]               // api/autores -> based on the Route above
         [HttpGet("listado")]    // api/autores/listado -> adding custome one 
         [HttpGet("/listado")]    // /listado -> overwrites the Route when using the prefix '/'
+        [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
+        [Authorize] // endpoint protected, needs authentication
         // the async funcions MUST return a Task<>
         public async Task<ActionResult<List<Autor>>> Get()
         {

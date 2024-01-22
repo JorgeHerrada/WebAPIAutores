@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Middlewares;
 using WebAppAutores.Servicios;
@@ -40,6 +41,10 @@ namespace WebAppAutores
             services.AddScoped<ServicioScoped>();
             services.AddSingleton<ServicioSingleton>();
 
+            services.AddResponseCaching(); // needed for the UseResponseCaching middleware
+
+            // Microsoft.AspNetCore.Authentication.JwtBearer package needed for authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
@@ -81,6 +86,8 @@ namespace WebAppAutores
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseResponseCaching();
 
             app.UseAuthorization();
 
