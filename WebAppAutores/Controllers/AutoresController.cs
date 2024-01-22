@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
+using WebAppAutores.Filtros;
 using WebAppAutores.Servicios;
 
 namespace WebAppAutores.Controllers
@@ -37,7 +38,8 @@ namespace WebAppAutores.Controllers
         }
 
         [HttpGet("GUID")]
-        [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
+        // [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
+        [ServiceFilter(typeof(MyActionFilter))] // add custom filter 'MyActionFilter'
         public ActionResult ObtenerGuids()
         {
             return Ok(new
@@ -62,10 +64,13 @@ namespace WebAppAutores.Controllers
         [HttpGet("listado")]    // api/autores/listado -> adding custome one 
         [HttpGet("/listado")]    // /listado -> overwrites the Route when using the prefix '/'
         [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
-        [Authorize] // endpoint protected, needs authentication
+        // [Authorize] // endpoint protected, needs authentication
+        [ServiceFilter(typeof(MyActionFilter))] // add custom filter 'MyActionFilter'
         // the async funcions MUST return a Task<>
         public async Task<ActionResult<List<Autor>>> Get()
         {
+            // throw new NotImplementedException(); // triggers custom global filter
+
             logger.LogInformation("Information: Getting the Autores");
             logger.LogWarning("Warning: Getting the Autores");
 

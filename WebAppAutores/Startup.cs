@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using WebAppAutores.Filtros;
 using WebAppAutores.Middlewares;
 using WebAppAutores.Servicios;
 
@@ -22,8 +23,12 @@ namespace WebAppAutores
         // what we define here gets instanciated properly with all config when used in a class
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(x => 
-            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            // adding filter
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(MyExceptionFilter));
+            }).AddJsonOptions(x => 
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             // when ApplicationDbContext is a dep, it gets instanciated properly with all configs
             // Scope service by default 
@@ -40,6 +45,7 @@ namespace WebAppAutores
             services.AddTransient<ServicioTransient>();
             services.AddScoped<ServicioScoped>();
             services.AddSingleton<ServicioSingleton>();
+            services.AddTransient<MyActionFilter>();
 
             services.AddResponseCaching(); // needed for the UseResponseCaching middleware
 
