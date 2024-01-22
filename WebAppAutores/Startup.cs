@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using WebAppAutores.Middlewares;
 using WebAppAutores.Servicios;
 
 namespace WebAppAutores
@@ -44,8 +45,33 @@ namespace WebAppAutores
             services.AddSwaggerGen();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        // this method gets called by the runtime.
+        // Use this method to configure the HTTP request pipeline
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger logger)
         {
+            // MIDDLEWARES
+
+            //app.UseMiddleware<LogResponseHTTPMiddleware>();  // calling custom Middleware
+
+            // calling same custom middleware but using static extension class
+            app.UseLogResponseHTTP(); 
+
+            // It only runs on the specified route, so we can use a different
+            // pipeline depends on the route
+            app.Map("/ruta1", app =>
+            {
+                app.Run(async context =>
+                {
+                    await context.Response.WriteAsync("Pipeline intercepted");
+                });
+            });
+
+            //// creates a middleware and cuts the folowing ones execution
+            //app.Run(async context =>
+            //{
+            //    await context.Response.WriteAsync("Pipeline intercepted");
+            //});
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
