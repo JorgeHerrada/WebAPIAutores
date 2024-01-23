@@ -11,6 +11,7 @@ namespace WebAppAutores
 
         // creacion de tabla Autores con las propiedades de la clase Autor 
         public DbSet<Autor> Autores { get; set; }
+
         // creacion de tabla Libros con propiedades de Libro
         public DbSet<Libro> Libros { get; set; }
     }

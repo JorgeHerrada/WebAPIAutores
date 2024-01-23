@@ -60,10 +60,10 @@ namespace WebAppAutores.Controllers
                 return BadRequest($"The Autor {autor.Nombre} already exists");
             }
 
-            // autor marked to be added but not added yet
+            // autor MARKED to be added but not added yet
             context.Add(autor);
 
-            // save it to the context
+            // INSERT changes and save it to the context
             await context.SaveChangesAsync();
 
             // HTTP 200 code
