@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
-using WebAppAutores.Filtros;
-using WebAppAutores.Servicios;
 
 namespace WebAppAutores.Controllers
 {
@@ -14,85 +11,24 @@ namespace WebAppAutores.Controllers
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        private readonly IServicio servicio;
-        private readonly ServicioTransient servicioTransient;
-        private readonly ServicioScoped servicioScoped;
-        private readonly ServicioSingleton servicioSingleton;
-        private readonly ILogger<AutoresController> logger;
 
-        public AutoresController(
-            ApplicationDbContext context,
-            IServicio servicio,
-            ServicioTransient servicioTransient,
-            ServicioScoped servicioScoped,
-            ServicioSingleton servicioSingleton,
-            ILogger<AutoresController> logger
-        )
+        public AutoresController(ApplicationDbContext context)
         {
             this.context = context;
-            this.servicio = servicio;
-            this.servicioTransient = servicioTransient;
-            this.servicioScoped = servicioScoped;
-            this.servicioSingleton = servicioSingleton;
-            this.logger = logger;
-        }
-
-        [HttpGet("GUID")]
-        // [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
-        [ServiceFilter(typeof(MyActionFilter))] // add custom filter 'MyActionFilter'
-        public ActionResult ObtenerGuids()
-        {
-            return Ok(new
-            {
-                // Transient will be different on each time
-                AutoresController_Transient = servicioTransient.Guid,
-                ServicioA_Transient = servicio.ObtenerTransient(),
-
-                // Scoped will be the same cause is the same context
-                // it will only change on the next HTTP request 
-                AutoresController_Scoped = servicioScoped.Guid,
-                ServicioA_Scoped = servicio.ObtenerScoped(),
-                
-                // Singleton will be always the same for all contexts and requests
-                AutoresController_Singleton = servicioSingleton.Guid,
-                ServicioA_Singleton = servicio.ObtenerSingleton()
-            });
         }
 
         // we can have multiple routes pointing to this endpoint
-        [HttpGet]               // api/autores -> based on the Route above
-        [HttpGet("listado")]    // api/autores/listado -> adding custome one 
-        [HttpGet("/listado")]    // /listado -> overwrites the Route when using the prefix '/'
-        [ResponseCache(Duration = 10)] // 10 seconds cache will response the same during that time
-        // [Authorize] // endpoint protected, needs authentication
-        [ServiceFilter(typeof(MyActionFilter))] // add custom filter 'MyActionFilter'
-        // the async funcions MUST return a Task<>
-        public async Task<ActionResult<List<Autor>>> Get()
+        [HttpGet] // api/autores -> based on the Route above
+        public async Task<ActionResult<List<Autor>>> Get() // async MUST return Task<>
         {
-            // throw new NotImplementedException(); // triggers custom global filter
-
-            logger.LogInformation("Information: Getting the Autores");
-            logger.LogWarning("Warning: Getting the Autores");
-
-            // return all the autors in DB
-            servicio.RealizarTarea();
-            return await context.Autores.Include(x => x.Libros).ToListAsync();
-        }
-
-        // add '/primero' to route in order to tell apart the TWO GET requests
-        [HttpGet("primero")] // api/autores/primero?nombre=felipe
-        // after '?' the query params get concatenated
-        public async Task<ActionResult<Autor>> PrimerAutor([FromHeader] int myValue, [FromQuery] string nombre)
-        {
-            return await context.Autores.FirstOrDefaultAsync();
+            // temp comment, until x.Libros is accessible again
+            //return await context.Autores.Include(x => x.Libros).ToListAsync(); 
+            return await context.Autores.ToListAsync();
         }
 
         // Returns Autor based on ID received
-        [HttpGet("{id:int}/{param2=whatever}/{param3?}")] 
-        // ':int' its a restriction on the route valiable
-        // '=someValue' sets a default value 
-        // '?' makes the param optional, it will be null if not provided
-        public async Task<ActionResult<Autor>> Get(int id, string param2, string param3)
+        [HttpGet("{id:int}")] // ':int' its a restriction on the route valiable
+        public async Task<ActionResult<Autor>> Get(int id)
         {
             var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
 
