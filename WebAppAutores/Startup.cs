@@ -47,6 +47,9 @@ namespace WebAppAutores
             services.AddSingleton<ServicioSingleton>();
             services.AddTransient<MyActionFilter>();
 
+            // actions to be executed when api starts/ends
+            services.AddHostedService<WriteInFile>(); 
+
             services.AddResponseCaching(); // needed for the UseResponseCaching middleware
 
             // Microsoft.AspNetCore.Authentication.JwtBearer package needed for authentication
