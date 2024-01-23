@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
+using WebAppAutores.DTOs;
 
 namespace WebAppAutores.Controllers
 {
@@ -11,54 +13,59 @@ namespace WebAppAutores.Controllers
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
-        public AutoresController(ApplicationDbContext context)
+        public AutoresController(ApplicationDbContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         // we can have multiple routes pointing to this endpoint
         [HttpGet] // api/autores -> based on the Route above
-        public async Task<ActionResult<List<Autor>>> Get() // async MUST return Task<>
+        public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
             //return await context.Autores.Include(x => x.Libros).ToListAsync(); 
-            return await context.Autores.ToListAsync();
+            var autores = await context.Autores.ToListAsync();
+
+            return mapper.Map<List<AutorDTO>>(autores);
         }
 
         // Returns Autor based on ID received
         [HttpGet("{id:int}")] // ':int' its a restriction on the route valiable
-        public async Task<ActionResult<Autor>> Get(int id)
+        public async Task<ActionResult<AutorDTO>> Get(int id)
         {
-            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+            var autor = await context.Autores.FirstOrDefaultAsync(autorDB => autorDB.Id == id);
 
             if (autor == null) {
                 return NotFound();
             }
-            return autor;
+
+            return mapper.Map<AutorDTO>(autor);
         }
 
-        // Returns Autor based on Nombre
+        // Returns Autor based on Nombre, list with all that matches
         [HttpGet("{nombre}")] 
-        public async Task<ActionResult<Autor>> Get([FromRoute]string nombre)
+        public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute]string nombre)
         {
-            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));
+            var autores = await context.Autores.Where(autorDB => autorDB.Nombre.Contains(nombre)).ToListAsync();
 
-            if (autor == null) {
-                return NotFound();
-            }
-            return autor;
+            return mapper.Map<List<AutorDTO>>(autores);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Autor autor)
+        public async Task<ActionResult> Post([FromBody] AutorCreationDTO autorCreationDTO)
         {
-            var autorExist = await context.Autores.AnyAsync(x => x.Nombre == autor.Nombre);
+            var autorExist = await context.Autores.AnyAsync(autorDB => autorDB.Nombre == autorCreationDTO.Nombre);
 
             if (autorExist)
             {
-                return BadRequest($"The Autor {autor.Nombre} already exists");
+                return BadRequest($"The Autor {autorCreationDTO.Nombre} already exists");
             }
+
+            // map the DTO class to the Autor class that can be sent to the DATABASE
+            var autor = mapper.Map<Autor>(autorCreationDTO);
 
             // autor MARKED to be added but not added yet
             context.Add(autor);

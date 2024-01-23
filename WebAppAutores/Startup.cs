@@ -39,6 +39,8 @@ namespace WebAppAutores
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // this method gets called by the runtime.
