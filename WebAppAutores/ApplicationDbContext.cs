@@ -14,5 +14,7 @@ namespace WebAppAutores
 
         // creacion de tabla Libros con propiedades de Libro
         public DbSet<Libro> Libros { get; set; }
+
+        public DbSet<Comentario> Comentarios { get; set; }
     }
 }
