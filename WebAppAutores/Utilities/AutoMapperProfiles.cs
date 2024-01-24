@@ -12,6 +12,8 @@ namespace WebAppAutores.Utilities
             // source -> destination
             CreateMap<AutorCreationDTO, Autor>();
             CreateMap<Autor, AutorDTO>();
+            CreateMap<LibroCreationDTO, Libro>();
+            CreateMap<Libro, LibroDTO>();
         }
     }
 }
