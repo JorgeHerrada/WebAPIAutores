@@ -23,8 +23,9 @@ namespace WebAppAutores.Controllers
         [HttpGet("{id:int}")] // api/libros/{id}
         public async Task<ActionResult<LibroDTO>> Get(int id)
         {
-            //return await context.Libros.Include(x => x.Autor).FirstOrDefaultAsync(x => x.Id == id);
-            var libro = await context.Libros.FirstOrDefaultAsync(libroDB => libroDB.Id == id);
+            var libro = await context.Libros
+                //.Include(libroDB => libroDB.Comentarios) // Adds the comments using JOIN behind
+                .FirstOrDefaultAsync(libroDB => libroDB.Id == id);
 
             return mapper.Map<LibroDTO>(libro);
         }
