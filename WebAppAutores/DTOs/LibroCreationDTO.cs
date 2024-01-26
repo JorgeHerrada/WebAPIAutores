@@ -8,5 +8,6 @@ namespace WebAppAutores.DTOs
         [CustomCapitalized]
         [StringLength(maximumLength: 250)]
         public string Titulo { get; set; }
+        public List<int> AutoresIds { get; set; }
     }
 }

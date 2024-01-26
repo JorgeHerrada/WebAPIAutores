@@ -33,14 +33,32 @@ namespace WebAppAutores.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(LibroCreationDTO libroCreationDTO)
         {
-            //// the books author exists?
-            //var autorExist = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
-            //if (!autorExist)
-            //{
-            //    return BadRequest($"The autor wit ID: {libro.AutorId} does not exists");
-            //}
+
+            if (libroCreationDTO.AutoresIds == null)
+            {
+                return BadRequest("You can not create a Libro without Autor");
+            }
+
+            // get a list of autores' Ids that matches the autores' Ids received
+            var autoresIds = await context.Autores
+                .Where(autorDB => libroCreationDTO.AutoresIds.Contains(autorDB.Id))
+                .Select(x => x.Id).ToListAsync();
+
+            // lists length doesn't match?
+            if (libroCreationDTO.AutoresIds.Count != autoresIds.Count)
+            {
+                return BadRequest("At least one of the Autores sent, does not exist");
+            }
 
             var libro = mapper.Map<Libro>(libroCreationDTO);
+
+            if (libro.AutoresLibros != null)
+            {
+                for(int i = 0; i < libro.AutoresLibros.Count; i++)
+                {
+                    libro.AutoresLibros[i].Orden = i;
+                }
+            }
 
             // prepare changes
             context.Add(libro);
