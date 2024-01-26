@@ -20,7 +20,7 @@ namespace WebAppAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id:int}")] // api/libros/{id}
+        [HttpGet("{id:int}", Name = "GetLibro")] // api/libros/{id}
         public async Task<ActionResult<LibroDTOConAutores>> Get(int id)
         {
             var libro = await context.Libros
@@ -70,7 +70,10 @@ namespace WebAppAutores.Controllers
             // save changes to DB
             await context.SaveChangesAsync();
 
-            return Ok();
+            // map to LibroDTO
+            var libroDTO = mapper.Map<LibroDTO>(libro);
+
+            return CreatedAtRoute("GetLibro", new {id  = libro.Id}, libroDTO);
         }
     }
 }

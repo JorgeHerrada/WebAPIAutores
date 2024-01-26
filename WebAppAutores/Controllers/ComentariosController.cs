@@ -36,6 +36,18 @@ namespace WebAppAutores.Controllers
             return mapper.Map<List<ComentarioDTO>>(comentarios);
         }
 
+        [HttpGet("{id:int}", Name = "GetComentario")]
+        public async Task<ActionResult<ComentarioDTO>> GetComentarioPorID(int libroId, int id)
+        {
+            var comentario = await context.Comentarios
+                .Where(libroDB => libroDB.LibroId == libroId)  // necessary? 
+                .FirstOrDefaultAsync(comentarioDB => comentarioDB.Id == id);
+
+            if (comentario == null) { return NotFound(); }
+
+            return mapper.Map<ComentarioDTO>(comentario);
+        }
+
         // post commet to a book
         [HttpPost]
         public async Task<ActionResult> Post(int libroId, ComentarioCreationDTO comentarioCreationDTO)
@@ -58,8 +70,10 @@ namespace WebAppAutores.Controllers
             // INSERT changes and save it to the context
             await context.SaveChangesAsync();
 
+            var comentarioDTO = mapper.Map<ComentarioDTO>(comentario);
+
             // HTTP 200 code
-            return Ok();
+            return CreatedAtRoute("GetComentario", new { id = comentario.Id, libroId }, comentarioDTO);
         }
 
     }

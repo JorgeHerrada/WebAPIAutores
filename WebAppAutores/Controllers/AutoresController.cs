@@ -33,7 +33,7 @@ namespace WebAppAutores.Controllers
         }
 
         // Returns Autor based on ID received
-        [HttpGet("{id:int}")] // ':int' its a restriction on the route valiable
+        [HttpGet("{id:int}",Name = "GetAutor")] // ':int' its a restriction on the route valiable
         public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
             var autor = await context.Autores
@@ -76,8 +76,10 @@ namespace WebAppAutores.Controllers
             // INSERT changes and save it to the context
             await context.SaveChangesAsync();
 
-            // HTTP 200 code
-            return Ok(); 
+            var autorDTO = mapper.Map<AutorDTO>(autor); // mapp to AutorDTO
+
+            // HTTP 201 - Created, shares route to find autor and return it
+            return CreatedAtRoute("GetAutor", new {id = autor.Id}, autorDTO);  
         }
 
         // param gets concatenated to the api route
