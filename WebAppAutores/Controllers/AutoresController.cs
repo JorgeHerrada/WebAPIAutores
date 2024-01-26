@@ -84,14 +84,8 @@ namespace WebAppAutores.Controllers
 
         // param gets concatenated to the api route
         [HttpPut("{id:int}")] // api/autores/{id}
-        public async Task<ActionResult> Put(Autor autor, int id)
+        public async Task<ActionResult> Put(AutorCreationDTO autorCreationDTO, int id)
         {
-            // IDs don't match?
-            if (autor.Id != id)
-            {
-                return BadRequest("The author's id does not match the id in the URL");
-            }
-
             // author with the received ID exist in the DB?
             var authorExist = await context.Autores.AnyAsync(x => x.Id == id);
             if (!authorExist)
@@ -99,13 +93,16 @@ namespace WebAppAutores.Controllers
                 return NotFound();
             }
 
+            var autor = mapper.Map<Autor>(autorCreationDTO);
+            autor.Id = id;
+
             // prepare the update
             context.Update(autor);
 
             // execute the update and save it in DB
             await context.SaveChangesAsync();
 
-            return Ok();
+            return NoContent(); // 204
         }
 
         [HttpDelete("{id:int}")] // api/autores/{id}
