@@ -34,15 +34,18 @@ namespace WebAppAutores.Controllers
 
         // Returns Autor based on ID received
         [HttpGet("{id:int}")] // ':int' its a restriction on the route valiable
-        public async Task<ActionResult<AutorDTO>> Get(int id)
+        public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
-            var autor = await context.Autores.FirstOrDefaultAsync(autorDB => autorDB.Id == id);
+            var autor = await context.Autores
+                .Include(autorDB => autorDB.AutoresLibros)  // access AutorLibro table
+                .ThenInclude(autorLibroDB => autorLibroDB.Libro)    // access Libros list in AutorLibroTable
+                .FirstOrDefaultAsync(autorDB => autorDB.Id == id);
 
             if (autor == null) {
                 return NotFound();
             }
 
-            return mapper.Map<AutorDTO>(autor);
+            return mapper.Map<AutorDTOConLibros>(autor);
         }
 
         // Returns Autor based on Nombre, list with all that matches
