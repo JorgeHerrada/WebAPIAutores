@@ -24,8 +24,12 @@ namespace WebAppAutores.Controllers
         public async Task<ActionResult<LibroDTO>> Get(int id)
         {
             var libro = await context.Libros
+                .Include(libroDB => libroDB.AutoresLibros) // go into AutoresLibros
+                .ThenInclude(autorLibroDB => autorLibroDB.Autor)  //  go into Autor
                 //.Include(libroDB => libroDB.Comentarios) // Adds the comments using JOIN behind
                 .FirstOrDefaultAsync(libroDB => libroDB.Id == id);
+
+            libro.AutoresLibros = libro.AutoresLibros.OrderBy(x => x.Orden).ToList();
 
             return mapper.Map<LibroDTO>(libro);
         }
