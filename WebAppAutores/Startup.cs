@@ -26,8 +26,9 @@ namespace WebAppAutores
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(MyExceptionFilter));
-            }).AddJsonOptions(x => 
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            }).AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles).
+                AddNewtonsoftJson(); // for the HTTP patch that uses JsonPatchDocument
 
             // when ApplicationDbContext is a dep, it gets instanciated properly with all configs
             // Scope service by default 

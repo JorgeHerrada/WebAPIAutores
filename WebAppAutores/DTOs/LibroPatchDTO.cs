@@ -3,11 +3,12 @@ using WebAppAutores.Validations;
 
 namespace WebAppAutores.DTOs
 {
-    public class LibroDTO
+    public class LibroPatchDTO
     {
-        public int Id { get; set; }
+        [CustomCapitalized]
+        [StringLength(maximumLength: 250)]
+        [Required]
         public string Titulo { get; set; }
         public DateTime FechaPublicacion { get; set; }
-        //public List<ComentarioDTO> Comentarios { get; set; } // used for JOIN but not necessary
     }
 }

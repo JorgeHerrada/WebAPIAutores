@@ -17,9 +17,10 @@ namespace WebAppAutores.Utilities
 
             CreateMap<LibroCreationDTO, Libro>()
                 .ForMember(libro => libro.AutoresLibros, options => options.MapFrom(MapAutoresLibros));
-            CreateMap<Libro, LibroDTO>();
+            CreateMap<Libro, LibroDTO>().ReverseMap(); // ReverseMap() is necessary?
             CreateMap<Libro, LibroDTOConAutores>()
                 .ForMember(libroDTO => libroDTO.Autores, options => options.MapFrom(MapLibroDTOAutores));
+            CreateMap<LibroPatchDTO, Libro>().ReverseMap();
 
             CreateMap<ComentarioCreationDTO, Comentario>();
             CreateMap<Comentario, ComentarioDTO>();
