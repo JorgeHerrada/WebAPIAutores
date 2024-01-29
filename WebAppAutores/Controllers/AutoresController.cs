@@ -120,7 +120,7 @@ namespace WebAppAutores.Controllers
             // execute DB update
             await context.SaveChangesAsync();
 
-            return Ok();
+            return NoContent();
         }
     }
 }

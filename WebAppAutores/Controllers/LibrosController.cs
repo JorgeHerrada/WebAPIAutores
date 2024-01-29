@@ -30,6 +30,8 @@ namespace WebAppAutores.Controllers
                 //.Include(libroDB => libroDB.Comentarios) // Adds the comments using JOIN behind
                 .FirstOrDefaultAsync(libroDB => libroDB.Id == id);
 
+            if (libro == null) { return NotFound(); }
+
             libro.AutoresLibros = libro.AutoresLibros.OrderBy(x => x.Orden).ToList();
 
             return mapper.Map<LibroDTOConAutores>(libro);
@@ -136,6 +138,24 @@ namespace WebAppAutores.Controllers
 
             mapper.Map(libroPatchDTO, libroDB); // map from DTO to DB
 
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:int}")] // api/libros/{id}
+        public async Task<ActionResult> Delete(int id)
+        {
+            // author with the received ID exist in the DB
+            var libroExist = await context.Libros.AnyAsync(libroDB => libroDB.Id == id);
+            if (!libroExist)
+            {
+                return NotFound();
+            }
+
+            // prepare deletion of the author with the assigned ID
+            context.Remove(new Libro() { Id = id }); ;
+            // execute DB update
             await context.SaveChangesAsync();
 
             return NoContent();
