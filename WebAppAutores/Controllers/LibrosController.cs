@@ -56,13 +56,7 @@ namespace WebAppAutores.Controllers
 
             var libro = mapper.Map<Libro>(libroCreationDTO);
 
-            if (libro.AutoresLibros != null)
-            {
-                for(int i = 0; i < libro.AutoresLibros.Count; i++)
-                {
-                    libro.AutoresLibros[i].Orden = i;
-                }
-            }
+            SortAutores(libro);
 
             // prepare changes
             context.Add(libro);
@@ -74,6 +68,57 @@ namespace WebAppAutores.Controllers
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
             return CreatedAtRoute("GetLibro", new {id  = libro.Id}, libroDTO);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, LibroCreationDTO libroCreationDTO)
+        {
+            // Autores exists?
+            if (libroCreationDTO.AutoresIds == null)
+            {
+                return BadRequest("You can not create a Libro without Autor");
+            }
+
+            // get a list of autores' Ids that matches the autores' Ids received
+            var autoresIds = await context.Autores
+                .Where(autorDB => libroCreationDTO.AutoresIds.Contains(autorDB.Id))
+                .Select(x => x.Id).ToListAsync();
+
+            // lists length doesn't match?
+            if (libroCreationDTO.AutoresIds.Count != autoresIds.Count)
+            {
+                return BadRequest("At least one of the Autores sent, does not exist");
+            }
+
+            // get the Libro from DB based on the received id, also bring the AutoresLibros table
+            var libroDB = await context.Libros
+                .Include(x => x.AutoresLibros)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (libroDB == null) { return NotFound(); }
+
+            // maps from libroCreationDTO to libroDB
+            // updating libroDB keeping the same instance created above
+            // so no need to do the usual context.update(<updatedInstance>)
+            libroDB = mapper.Map(libroCreationDTO, libroDB);
+
+            SortAutores(libroDB);
+
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // make sure the autores are sorted same as the user sent them
+        private void SortAutores(Libro libro)
+        {
+            if (libro.AutoresLibros != null)
+            {
+                for (int i = 0; i < libro.AutoresLibros.Count; i++)
+                {
+                    libro.AutoresLibros[i].Orden = i;
+                }
+            }
         }
     }
 }
