@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Filtros;
 using WebAppAutores.Middlewares;
@@ -42,6 +43,11 @@ namespace WebAppAutores
             services.AddSwaggerGen();
 
             services.AddAutoMapper(typeof(Startup));
+
+            // configure Identity 
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
         }
 
         // this method gets called by the runtime.

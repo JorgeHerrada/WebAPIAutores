@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
 
 namespace WebAppAutores
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext // includes de Identity tables
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -11,7 +12,7 @@ namespace WebAppAutores
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder); // necessary for the Identity
 
             // define composed primary key on AutorLibro entity
             // using an object with both Autor and Libro keys

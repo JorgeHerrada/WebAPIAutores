@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
@@ -23,6 +25,7 @@ namespace WebAppAutores.Controllers
 
         // we can have multiple routes pointing to this endpoint
         [HttpGet] // api/autores -> based on the Route above
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
