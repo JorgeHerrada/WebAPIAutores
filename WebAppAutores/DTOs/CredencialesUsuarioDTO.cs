@@ -2,7 +2,7 @@
 
 namespace WebAppAutores.DTOs
 {
-    public class CredencialesUsuario
+    public class CredencialesUsuarioDTO
     {
         // information that we get from the user to loggin
         [Required]

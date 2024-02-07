@@ -1,6 +1,6 @@
 ﻿namespace WebAppAutores.DTOs
 {
-    public class RespuestaAutentication
+    public class RespuestaAutenticationDTO
     {
         // information that we'll send to the user once logged 
         public string Token { get; set; }

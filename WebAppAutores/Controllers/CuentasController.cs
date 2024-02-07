@@ -23,7 +23,7 @@ namespace WebAppAutores.Controllers
         }
 
         [HttpPost("registrar")] // api/cuentas/registrar
-        public async Task<ActionResult<RespuestaAutentication>> Registrar(CredencialesUsuario credencialesUsuario)
+        public async Task<ActionResult<RespuestaAutenticationDTO>> Registrar(CredencialesUsuarioDTO credencialesUsuario)
         {
             // create Identity user with received information
             var user = new IdentityUser
@@ -44,8 +44,9 @@ namespace WebAppAutores.Controllers
             }
         }
 
-        private RespuestaAutentication ConstruirToken(CredencialesUsuario credencialesUsuario)
+        private RespuestaAutenticationDTO ConstruirToken(CredencialesUsuarioDTO credencialesUsuario)
         {
+            // information in claim is public, don't send sensitive data
             var claims = new List<Claim>()
             {
                 new Claim("email", credencialesUsuario.Email),
@@ -65,7 +66,7 @@ namespace WebAppAutores.Controllers
                 signingCredentials: creds
             );
 
-            return new RespuestaAutentication()
+            return new RespuestaAutenticationDTO()
             {
                 // cast it to a string that can be returned
                 Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
