@@ -14,12 +14,17 @@ namespace WebAppAutores.Controllers
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
+        private readonly SignInManager<IdentityUser> signInManager;
 
-        public CuentasController(UserManager<IdentityUser> userManager, 
-            IConfiguration configuration)
+        public CuentasController(
+            UserManager<IdentityUser> userManager, 
+            IConfiguration configuration,
+            SignInManager<IdentityUser> signInManager
+        )
         {
             this.userManager = userManager;
             this.configuration = configuration;
+            this.signInManager = signInManager;
         }
 
         [HttpPost("registrar")] // api/cuentas/registrar
@@ -42,6 +47,27 @@ namespace WebAppAutores.Controllers
             {
                 return BadRequest(result.Errors);
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<RespuestaAutenticationDTO>> Login(CredencialesUsuarioDTO credencialesUsuario)
+        {
+            var result = await signInManager.PasswordSignInAsync(
+                    credencialesUsuario.Email, 
+                    credencialesUsuario.Password,
+                    isPersistent: false,
+                    lockoutOnFailure: false
+                );
+
+            if (result.Succeeded)
+            {
+                return ConstruirToken(credencialesUsuario);
+            }
+            else
+            {
+                return BadRequest("Login incorrecto");
+            }
+
         }
 
         private RespuestaAutenticationDTO ConstruirToken(CredencialesUsuarioDTO credencialesUsuario)
