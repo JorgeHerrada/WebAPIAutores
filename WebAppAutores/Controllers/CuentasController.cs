@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -68,6 +70,20 @@ namespace WebAppAutores.Controllers
                 return BadRequest("Login incorrecto");
             }
 
+        }
+
+        [HttpGet("renovar-token")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<RespuestaAutenticationDTO> Renovar()
+        {
+            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            var email = emailClaim.Value;
+            var credencialesUsuario = new CredencialesUsuarioDTO()
+            {
+                Email = email,
+            };
+
+            return ConstruirToken(credencialesUsuario);
         }
 
         private RespuestaAutenticationDTO ConstruirToken(CredencialesUsuarioDTO credencialesUsuario)
