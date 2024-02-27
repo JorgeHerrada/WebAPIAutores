@@ -9,7 +9,7 @@ using WebAppAutores.DTOs;
 namespace WebAppAutores.Controllers
 {
     // decorators
-    // [Authorize] // ALL endpoints protected, needs authentication
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // ALL endpoints protected, needs authentication
     [ApiController]         // defines its an api controler
     [Route("api/autores")]  // defines the api route
     public class AutoresController : ControllerBase
@@ -25,7 +25,8 @@ namespace WebAppAutores.Controllers
 
         // we can have multiple routes pointing to this endpoint
         [HttpGet] // api/autores -> based on the Route above
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
+        [AllowAnonymous] // Authentication not needed on this endpoint
         public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
