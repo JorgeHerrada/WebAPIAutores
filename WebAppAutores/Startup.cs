@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,8 @@ namespace WebAppAutores
     {
         public Startup(IConfiguration configuration)
         {
+            // clears the mapping on the claims keys
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
             Configuration = configuration;
         }
 

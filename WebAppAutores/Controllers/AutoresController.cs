@@ -30,7 +30,7 @@ namespace WebAppAutores.Controllers
         public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
-            //return await context.Autores.Include(x => x.Libros).ToListAsync(); 
+            //return await context.Autores.Include(x => x.Libros).ToListAsync();
             var autores = await context.Autores.ToListAsync();
 
             return mapper.Map<List<AutorDTO>>(autores);
