@@ -92,6 +92,13 @@ namespace WebAppAutores
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            // add policy for EsAdmin
+            services.AddAuthorization(opciones =>
+            {
+                opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
+                //opciones.AddPolicy("EsVendedor", politica => politica.RequireClaim("esVendedor"));
+            });
         }
 
         // this method gets called by the runtime.

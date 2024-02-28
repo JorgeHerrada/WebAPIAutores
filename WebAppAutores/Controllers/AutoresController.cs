@@ -9,7 +9,9 @@ using WebAppAutores.DTOs;
 namespace WebAppAutores.Controllers
 {
     // decorators
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // ALL endpoints protected, needs authentication
+    // ALL endpoints protected, needs authentication
+    // access only with EsAdmin field in claim
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")] 
     [ApiController]         // defines its an api controler
     [Route("api/autores")]  // defines the api route
     public class AutoresController : ControllerBase
