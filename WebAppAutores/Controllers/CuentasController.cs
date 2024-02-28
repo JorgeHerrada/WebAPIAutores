@@ -43,7 +43,7 @@ namespace WebAppAutores.Controllers
 
             if (result.Succeeded)
             {
-                return ConstruirToken(credencialesUsuario);
+                return await ConstruirToken(credencialesUsuario);
             }
             else
             {
@@ -63,7 +63,7 @@ namespace WebAppAutores.Controllers
 
             if (result.Succeeded)
             {
-                return ConstruirToken(credencialesUsuario);
+                return await ConstruirToken(credencialesUsuario);
             }
             else
             {
@@ -74,7 +74,7 @@ namespace WebAppAutores.Controllers
 
         [HttpGet("renovar-token")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult<RespuestaAutenticationDTO> Renovar()
+        public async Task<ActionResult<RespuestaAutenticationDTO>> Renovar()
         {
             var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
             var email = emailClaim.Value;
@@ -83,16 +83,43 @@ namespace WebAppAutores.Controllers
                 Email = email,
             };
 
-            return ConstruirToken(credencialesUsuario);
+            return await ConstruirToken(credencialesUsuario);
         }
 
-        private RespuestaAutenticationDTO ConstruirToken(CredencialesUsuarioDTO credencialesUsuario)
+        // takes a registered user and make it admin by adding the esAdmin claim
+        [HttpPost("hacer-admin")]
+        public async Task<ActionResult> HacerAdmin(EditarAdminDTO editarAdminDTO)
+        {
+            var usuario = await userManager.FindByEmailAsync(editarAdminDTO.Email);
+
+            await userManager.AddClaimAsync(usuario, new Claim("esAdmin", "1"));
+
+            return NoContent();
+        }
+
+        // takes a registered admin and revoke its privileges by removing the esAdmin claim
+        [HttpPost("remover-admin")]
+        public async Task<ActionResult> RemoverAdmin(EditarAdminDTO editarAdminDTO)
+        {
+            var usuario = await userManager.FindByEmailAsync(editarAdminDTO.Email);
+
+            await userManager.RemoveClaimAsync(usuario, new Claim("esAdmin", "1"));
+
+            return NoContent();
+        }
+
+        private async Task<RespuestaAutenticationDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuario)
         {
             // information in claim is public, don't send sensitive data
             var claims = new List<Claim>()
             {
                 new Claim("email", credencialesUsuario.Email),
             };
+
+            var usuario = await userManager.FindByEmailAsync(credencialesUsuario.Email); // find the used in the DB
+            var claimsDB = await userManager.GetClaimsAsync(usuario); // get its claims
+
+            claims.AddRange(claimsDB); // additional claims are concatenated
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["keyjwt"]));
 
