@@ -21,7 +21,7 @@ namespace WebAppAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id:int}", Name = "GetLibro")] // api/libros/{id}
+        [HttpGet("{id:int}", Name = "obtener-libro")] // api/libros/{id}
         public async Task<ActionResult<LibroDTOConAutores>> Get(int id)
         {
             var libro = await context.Libros
@@ -37,7 +37,7 @@ namespace WebAppAutores.Controllers
             return mapper.Map<LibroDTOConAutores>(libro);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "crear-libro")]
         public async Task<ActionResult> Post(LibroCreationDTO libroCreationDTO)
         {
 
@@ -70,10 +70,10 @@ namespace WebAppAutores.Controllers
             // map to LibroDTO
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
-            return CreatedAtRoute("GetLibro", new {id  = libro.Id}, libroDTO);
+            return CreatedAtRoute("obtener-libro", new {id  = libro.Id}, libroDTO);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "actualizar-libro")]
         public async Task<ActionResult> Put(int id, LibroCreationDTO libroCreationDTO)
         {
             // Autores exists?
@@ -112,7 +112,7 @@ namespace WebAppAutores.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:int}")]
+        [HttpPatch("{id:int}", Name ="patch-libro")]
         public async Task<ActionResult> Patch(int id, JsonPatchDocument<LibroPatchDTO> patchDocument)
         {
             if (patchDocument == null)
@@ -143,7 +143,7 @@ namespace WebAppAutores.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:int}")] // api/libros/{id}
+        [HttpDelete("{id:int}", Name = "borrar-libro")] // api/libros/{id}
         public async Task<ActionResult> Delete(int id)
         {
             // author with the received ID exist in the DB

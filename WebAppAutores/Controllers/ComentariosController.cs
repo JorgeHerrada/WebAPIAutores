@@ -28,7 +28,7 @@ namespace WebAppAutores.Controllers
             this.userManager = userManager;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "obtener-comentarios-libro")]
         public async Task<ActionResult<List<ComentarioDTO>>> Get(int libroId)
         {
             // the libro exist?
@@ -45,7 +45,7 @@ namespace WebAppAutores.Controllers
             return mapper.Map<List<ComentarioDTO>>(comentarios);
         }
 
-        [HttpGet("{id:int}", Name = "GetComentario")]
+        [HttpGet("{id:int}", Name = "obtener-comentario-en-libro")]
         public async Task<ActionResult<ComentarioDTO>> GetComentarioPorID(int libroId, int id)
         {
             var comentario = await context.Comentarios
@@ -58,7 +58,7 @@ namespace WebAppAutores.Controllers
         }
 
         // post commet to a book
-        [HttpPost]
+        [HttpPost(Name = "crear-comentario")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Post(int libroId, ComentarioCreationDTO comentarioCreationDTO)
         {
@@ -90,10 +90,10 @@ namespace WebAppAutores.Controllers
             var comentarioDTO = mapper.Map<ComentarioDTO>(comentario);
 
             // HTTP 200 code
-            return CreatedAtRoute("GetComentario", new { id = comentario.Id, libroId }, comentarioDTO);
+            return CreatedAtRoute("obtener-comentario-en-libro", new { id = comentario.Id, libroId }, comentarioDTO);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "actualizar-comentario")]
         public async Task<ActionResult> Put(int libroId, int id, ComentarioCreationDTO comentarioCreationDTO)
         {
             // the libro exist?
