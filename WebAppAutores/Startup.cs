@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebAppAutores.Filtros;
 using WebAppAutores.Middlewares;
+using WebAppAutores.Servicios;
 
 namespace WebAppAutores
 {
@@ -102,6 +103,9 @@ namespace WebAppAutores
 
             // access to data protection services (for encryption)
             services.AddDataProtection();
+
+            // hash service 
+            services.AddTransient<HashService>();
         }
 
         // this method gets called by the runtime.
