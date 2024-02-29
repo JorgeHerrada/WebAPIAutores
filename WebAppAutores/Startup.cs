@@ -99,6 +99,9 @@ namespace WebAppAutores
                 opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
                 //opciones.AddPolicy("EsVendedor", politica => politica.RequireClaim("esVendedor"));
             });
+
+            // access to data protection services (for encryption)
+            services.AddDataProtection();
         }
 
         // this method gets called by the runtime.

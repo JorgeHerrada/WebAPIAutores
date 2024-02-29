@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -17,16 +18,56 @@ namespace WebAppAutores.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly IDataProtector dataProtector;
 
         public CuentasController(
             UserManager<IdentityUser> userManager, 
             IConfiguration configuration,
-            SignInManager<IdentityUser> signInManager
+            SignInManager<IdentityUser> signInManager,
+            IDataProtectionProvider dataProtectionProvider // for encryption
         )
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.signInManager = signInManager;
+            dataProtector = dataProtectionProvider.CreateProtector("valor_unico_y_secreto");
+        }
+
+        [HttpGet("encriptar")]
+        public ActionResult Encriptar()
+        {
+            var textoPlano = "Un texto plano sin cifrar";
+            var textoEncriptado = dataProtector.Protect(textoPlano);
+            var textoDesencriptado = dataProtector.Unprotect(textoEncriptado);
+
+            return Ok(new
+            {
+                textoPlano = textoPlano,
+                textoEncriptado = textoEncriptado,
+                textoDesencriptado = textoDesencriptado,
+            });
+            
+        }
+        
+        [HttpGet("encriptar-por-tiempo")]
+        public ActionResult EncriptarPorTiempo()
+        {
+            var protectorLimitadoPorTiempo = dataProtector.ToTimeLimitedDataProtector();
+
+            var textoPlano = "Un texto plano sin cifrar";
+            var textoEncriptado = protectorLimitadoPorTiempo.Protect(textoPlano, lifetime: TimeSpan.FromSeconds(5));
+
+            Thread.Sleep(6000);
+
+            var textoDesencriptado = protectorLimitadoPorTiempo.Unprotect(textoEncriptado);
+
+            return Ok(new
+            {
+                textoPlano = textoPlano,
+                textoEncriptado = textoEncriptado,
+                textoDesencriptado = textoDesencriptado,
+            });
+            
         }
 
         [HttpPost("registrar")] // api/cuentas/registrar
