@@ -51,7 +51,32 @@ namespace WebAppAutores.Controllers
                 return NotFound();
             }
 
-            return mapper.Map<AutorDTOConLibros>(autor);
+            var dto = mapper.Map<AutorDTOConLibros>(autor);
+
+            GenerarEnlaces(dto);
+
+            return dto;
+        }
+
+        private void GenerarEnlaces(AutorDTO autorDTO)
+        {
+            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("obtener-autor-por-id", new { id = autorDTO.Id }),
+                descripcion: "self",
+                metodo: "GET"
+            ));
+
+            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("actualizar-autor", new { id = autorDTO.Id }),
+                descripcion: "autor-actualizar",
+                metodo: "PUT"
+            ));
+
+            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("borrar-autor", new { id = autorDTO.Id }),
+                descripcion: "autor-borrar",
+                metodo: "DELETE"
+            ));
         }
 
         // Returns Autor based on Nombre, list with all that matches

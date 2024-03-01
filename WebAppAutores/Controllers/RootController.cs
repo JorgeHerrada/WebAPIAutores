@@ -25,39 +25,31 @@ namespace WebAppAutores.Controllers
 
             var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
 
-            datosHateoas.Add(
-                new DatoHATEOSDTO(
-                    enlace: Url.Link("obtener-root", new { }),
-                    descripcion: "self",
-                    metodo: "GET"
-                )
-            );
+            datosHateoas.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("obtener-root", new { }),
+                descripcion: "self",
+                metodo: "GET"
+            ));
 
-            datosHateoas.Add(
-                new DatoHATEOSDTO(
-                    enlace: Url.Link("obtener-autores", new { }),
-                    descripcion: "autores",
-                    metodo: "GET"
-                )
-            );
+            datosHateoas.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("obtener-autores", new { }),
+                descripcion: "autores",
+                metodo: "GET"
+            ));
             
             if ( esAdmin.Succeeded)
             {
-                datosHateoas.Add(
-                    new DatoHATEOSDTO(
-                        enlace: Url.Link("crear-autor", new { }),
-                        descripcion: "autor-crear",
-                        metodo: "POST"
-                    )
-                );
+                datosHateoas.Add(new DatoHATEOSDTO(
+                    enlace: Url.Link("crear-autor", new { }),
+                    descripcion: "autor-crear",
+                    metodo: "POST"
+                ));
 
-                datosHateoas.Add(
-                    new DatoHATEOSDTO(
-                        enlace: Url.Link("crear-libro", new { }),
-                        descripcion: "libro-crear",
-                        metodo: "POST"
-                    )
-                );
+                datosHateoas.Add(new DatoHATEOSDTO(
+                    enlace: Url.Link("crear-libro", new { }),
+                    descripcion: "libro-crear",
+                    metodo: "POST"
+                ));
             }
 
             return datosHateoas;
