@@ -18,28 +18,58 @@ namespace WebAppAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IAuthorizationService authorizationService;
 
-        public AutoresController(ApplicationDbContext context, IMapper mapper)
+        public AutoresController(
+            ApplicationDbContext context,
+            IMapper mapper,
+            IAuthorizationService authorizationService)
         {
             this.context = context;
             this.mapper = mapper;
+            this.authorizationService = authorizationService;
         }
 
         // we can have multiple routes pointing to this endpoint
         [HttpGet(Name = "obtener-autores")] // api/autores -> based on the Route above
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
-        public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
+        public async Task<ActionResult<ColeccionDeRecursosDTO<AutorDTO>>> Get() // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
             //return await context.Autores.Include(x => x.Libros).ToListAsync();
             var autores = await context.Autores.ToListAsync();
 
-            return mapper.Map<List<AutorDTO>>(autores);
+            var dtos = mapper.Map<List<AutorDTO>>(autores);
+
+            var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
+
+            // iterate the list and generate the links for each author, given its privileges
+            dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
+
+            var resultado = new ColeccionDeRecursosDTO<AutorDTO> { Values = dtos };
+
+            resultado.Enlaces.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("obtener-autores", new { }),
+                descripcion: "self",
+                metodo: "GET"
+            ));
+
+            if (esAdmin.Succeeded)
+            {
+                resultado.Enlaces.Add(new DatoHATEOSDTO(
+                    enlace: Url.Link("crear-autor", new { }),
+                    descripcion: "autor-crear",
+                    metodo: "POST"
+                ));
+            }
+
+            return resultado;
         }
 
         // Returns Autor based on ID received
         [HttpGet("{id:int}",Name = "obtener-autor-por-id")] // ':int' its a restriction on the route valiable
+        [AllowAnonymous]
         public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
             var autor = await context.Autores
@@ -53,30 +83,11 @@ namespace WebAppAutores.Controllers
 
             var dto = mapper.Map<AutorDTOConLibros>(autor);
 
-            GenerarEnlaces(dto);
+            var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
+
+            GenerarEnlaces(dto, esAdmin.Succeeded);
 
             return dto;
-        }
-
-        private void GenerarEnlaces(AutorDTO autorDTO)
-        {
-            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                enlace: Url.Link("obtener-autor-por-id", new { id = autorDTO.Id }),
-                descripcion: "self",
-                metodo: "GET"
-            ));
-
-            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                enlace: Url.Link("actualizar-autor", new { id = autorDTO.Id }),
-                descripcion: "autor-actualizar",
-                metodo: "PUT"
-            ));
-
-            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                enlace: Url.Link("borrar-autor", new { id = autorDTO.Id }),
-                descripcion: "autor-borrar",
-                metodo: "DELETE"
-            ));
         }
 
         // Returns Autor based on Nombre, list with all that matches
@@ -152,6 +163,30 @@ namespace WebAppAutores.Controllers
             await context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private void GenerarEnlaces(AutorDTO autorDTO, bool esAdmin)
+        {
+            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                enlace: Url.Link("obtener-autor-por-id", new { id = autorDTO.Id }),
+                descripcion: "self",
+                metodo: "GET"
+            ));
+
+            if (esAdmin)
+            {
+                autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                    enlace: Url.Link("actualizar-autor", new { id = autorDTO.Id }),
+                    descripcion: "autor-actualizar",
+                    metodo: "PUT"
+                ));
+
+                autorDTO.Enlaces.Add(new DatoHATEOSDTO(
+                    enlace: Url.Link("borrar-autor", new { id = autorDTO.Id }),
+                    descripcion: "autor-borrar",
+                    metodo: "DELETE"
+                ));
+            }
         }
     }
 }
