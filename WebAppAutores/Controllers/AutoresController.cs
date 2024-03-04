@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
 using WebAppAutores.DTOs;
+using WebAppAutores.Utilities;
 
 namespace WebAppAutores.Controllers
 {
@@ -34,7 +35,7 @@ namespace WebAppAutores.Controllers
         [HttpGet(Name = "obtener-autores")] // api/autores -> based on the Route above
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
-        public async Task<IActionResult> Get([FromQuery] bool incluirHateoas = true) // async MUST return Task<>
+        public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true) // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
             //return await context.Autores.Include(x => x.Libros).ToListAsync();
@@ -42,12 +43,12 @@ namespace WebAppAutores.Controllers
 
             var dtos = mapper.Map<List<AutorDTO>>(autores);
 
-            if (incluirHateoas)
+            if (includeHATEOAS)
             {
                 var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
 
                 // iterate the list and generate the links for each author, given its privileges
-                dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
+                //dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
 
                 var resultado = new ColeccionDeRecursosDTO<AutorDTO> { Values = dtos };
 
@@ -75,7 +76,8 @@ namespace WebAppAutores.Controllers
         // Returns Autor based on ID received
         [HttpGet("{id:int}",Name = "obtener-autor-por-id")] // ':int' its a restriction on the route valiable
         [AllowAnonymous]
-        public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
+        [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
+        public async Task<ActionResult<AutorDTOConLibros>> Get(int id, [FromHeader] string includeHATEOAS)
         {
             var autor = await context.Autores
                 .Include(autorDB => autorDB.AutoresLibros)  // access AutorLibro table
@@ -87,10 +89,6 @@ namespace WebAppAutores.Controllers
             }
 
             var dto = mapper.Map<AutorDTOConLibros>(autor);
-
-            var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
-
-            GenerarEnlaces(dto, esAdmin.Succeeded);
 
             return dto;
         }
@@ -168,30 +166,6 @@ namespace WebAppAutores.Controllers
             await context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private void GenerarEnlaces(AutorDTO autorDTO, bool esAdmin)
-        {
-            autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                enlace: Url.Link("obtener-autor-por-id", new { id = autorDTO.Id }),
-                descripcion: "self",
-                metodo: "GET"
-            ));
-
-            if (esAdmin)
-            {
-                autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                    enlace: Url.Link("actualizar-autor", new { id = autorDTO.Id }),
-                    descripcion: "autor-actualizar",
-                    metodo: "PUT"
-                ));
-
-                autorDTO.Enlaces.Add(new DatoHATEOSDTO(
-                    enlace: Url.Link("borrar-autor", new { id = autorDTO.Id }),
-                    descripcion: "autor-borrar",
-                    metodo: "DELETE"
-                ));
-            }
         }
     }
 }

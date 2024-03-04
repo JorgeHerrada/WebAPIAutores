@@ -3,12 +3,14 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebAppAutores.Filtros;
 using WebAppAutores.Middlewares;
 using WebAppAutores.Servicios;
+using WebAppAutores.Utilities;
 
 namespace WebAppAutores
 {
@@ -106,6 +108,10 @@ namespace WebAppAutores
 
             // hash service 
             services.AddTransient<HashService>();
+
+            services.AddTransient<GeneradorEnlaces>();
+            services.AddTransient<HATEOASAutorFilterAttribute>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 
         // this method gets called by the runtime.
