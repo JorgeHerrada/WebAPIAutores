@@ -36,14 +36,10 @@ namespace WebAppAutores.Controllers
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
-        public async Task<ActionResult<List<AutorDTO>>> Get([FromHeader] string includeHATEOAS) // async MUST return Task<>
+        public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
-            // temp comment, until x.Libros is accessible again
-            //return await context.Autores.Include(x => x.Libros).ToListAsync();
             var autores = await context.Autores.ToListAsync();
-
             var dto = mapper.Map<List<AutorDTO>>(autores);
-
             return dto;
         }
 
@@ -51,7 +47,7 @@ namespace WebAppAutores.Controllers
         [HttpGet("{id:int}",Name = "obtener-autor-por-id")] // ':int' its a restriction on the route valiable
         [AllowAnonymous]
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
-        public async Task<ActionResult<AutorDTOConLibros>> Get(int id, [FromHeader] string includeHATEOAS)
+        public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
             var autor = await context.Autores
                 .Include(autorDB => autorDB.AutoresLibros)  // access AutorLibro table
