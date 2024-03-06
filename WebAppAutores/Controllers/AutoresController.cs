@@ -35,42 +35,16 @@ namespace WebAppAutores.Controllers
         [HttpGet(Name = "obtener-autores")] // api/autores -> based on the Route above
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
-        public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true) // async MUST return Task<>
+        [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
+        public async Task<ActionResult<List<AutorDTO>>> Get([FromHeader] string includeHATEOAS) // async MUST return Task<>
         {
             // temp comment, until x.Libros is accessible again
             //return await context.Autores.Include(x => x.Libros).ToListAsync();
             var autores = await context.Autores.ToListAsync();
 
-            var dtos = mapper.Map<List<AutorDTO>>(autores);
+            var dto = mapper.Map<List<AutorDTO>>(autores);
 
-            if (includeHATEOAS)
-            {
-                var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
-
-                // iterate the list and generate the links for each author, given its privileges
-                //dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
-
-                var resultado = new ColeccionDeRecursosDTO<AutorDTO> { Values = dtos };
-
-                resultado.Enlaces.Add(new DatoHATEOSDTO(
-                    enlace: Url.Link("obtener-autores", new { }),
-                    descripcion: "self",
-                    metodo: "GET"
-                ));
-
-                if (esAdmin.Succeeded)
-                {
-                    resultado.Enlaces.Add(new DatoHATEOSDTO(
-                        enlace: Url.Link("crear-autor", new { }),
-                        descripcion: "autor-crear",
-                        metodo: "POST"
-                    ));
-                }
-
-                return Ok(resultado);
-            }
-
-            return Ok(dtos);
+            return dto;
         }
 
         // Returns Autor based on ID received
@@ -95,7 +69,7 @@ namespace WebAppAutores.Controllers
 
         // Returns Autor based on Nombre, list with all that matches
         [HttpGet("{nombre}", Name = "obtener-autor-por-nombre")] 
-        public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute]string nombre)
+        public async Task<ActionResult<List<AutorDTO>>> GetByName([FromRoute]string nombre)
         {
             var autores = await context.Autores.Where(autorDB => autorDB.Nombre.Contains(nombre)).ToListAsync();
 

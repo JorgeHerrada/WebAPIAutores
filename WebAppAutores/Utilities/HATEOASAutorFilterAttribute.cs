@@ -25,11 +25,25 @@ namespace WebAppAutores.Utilities
             }
 
             var resultado = context.Result as ObjectResult;
-            var modelo = resultado.Value as AutorDTO ?? 
-                throw new ArgumentNullException("An instance of AutorDTO was expected");
 
-            await generadorEnlaces.GenerarEnlaces(modelo);
+            //var modelo = resultado.Value as AutorDTO ?? 
+            //    throw new ArgumentNullException("An instance of AutorDTO was expected");
+            // refactor prev lines to include list:
+            var autorDTO = resultado.Value as AutorDTO;
 
+            if (autorDTO == null)
+            {
+                var autoresDTO = resultado.Value as List<AutorDTO> ??
+                    throw new ArgumentNullException("An instance of AutorDTO or List<AutorDTO> was expected");
+
+                autoresDTO.ForEach(async autorDTO => await generadorEnlaces.GenerarEnlaces(autorDTO));
+
+                resultado.Value = autoresDTO;
+            }
+            else
+            {
+                await generadorEnlaces.GenerarEnlaces(autorDTO);
+            }
             await next();
         }
     }
