@@ -39,9 +39,11 @@ namespace WebAppAutores.Controllers.v1
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
-        public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
+        public async Task<ActionResult<List<AutorDTO>>> Get([FromQuery] PaginationDTO paginationDTO) // async MUST return Task<>
         {
-            var autores = await context.Autores.ToListAsync();
+            var queryable = context.Autores.AsQueryable();
+            await HttpContext.InsertPaginationParamsInHeader(queryable);
+            var autores = await queryable.OrderBy(autor => autor.Id).Paginate(paginationDTO).ToListAsync();
             var dto = mapper.Map<List<AutorDTO>>(autores);
             return dto;
         }
