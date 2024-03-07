@@ -1,8 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +14,7 @@ using WebAppAutores.Middlewares;
 using WebAppAutores.Servicios;
 using WebAppAutores.Utilities;
 
+[assembly: ApiConventionType(typeof(DefaultApiConventions))] // adds default response types in all API endpoints
 namespace WebAppAutores
 {
     public class Startup
@@ -62,7 +65,19 @@ namespace WebAppAutores
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIAutores", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { 
+                    Title = "WebAPIAutores",
+                    Version = "v1",
+                    Description = "Some API description",
+                    Contact = new OpenApiContact
+                    {
+                        Email = "some@email.com",
+                        Name = "SomeName",
+                        Url = new Uri("https://www.github.com")
+                    },
+                    License = new OpenApiLicense { Name = "MIT"},
+
+                });
                 c.SwaggerDoc("v2", new OpenApiInfo { Title = "WebAPIAutores", Version = "v2" });
                 c.OperationFilter<AddParamHATEOAS>(); // filter to add the includeHATEOAS param
                 c.OperationFilter<AddParamXVersion>();
@@ -90,6 +105,11 @@ namespace WebAppAutores
                         new string[] {}
                     }
                 });
+
+                // add comments to swagger
+                var fileXML = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var routeXML = Path.Combine(AppContext.BaseDirectory, fileXML);
+                c.IncludeXmlComments(routeXML);
             });
 
             services.AddAutoMapper(typeof(Startup));

@@ -16,6 +16,7 @@ namespace WebAppAutores.Controllers.v1
     [ApiController]         // defines its an api controler
     [Route("api/autores")]  // defines the api route
     [HeaderIs("x-version", "1")]
+    //[ApiConventionType(typeof(DefaultApiConventions))] // includes default response types
     //[Route("api/v1/autores")]  // defines the api route
     public class AutoresController : ControllerBase
     {
@@ -49,6 +50,7 @@ namespace WebAppAutores.Controllers.v1
         [HttpGet("{id:int}", Name = "obtener-autor-por-id-v1")] // ':int' its a restriction on the route valiable
         [AllowAnonymous]
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
+        //[ProducesResponseType(404)] 
         public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
             var autor = await context.Autores
@@ -123,6 +125,11 @@ namespace WebAppAutores.Controllers.v1
             return NoContent(); // 204
         }
 
+        /// <summary>
+        /// Delete an author
+        /// </summary>
+        /// <param name="id">Id of the author to be deleted </param>
+        /// <returns></returns>
         [HttpDelete("{id:int}", Name = "borrar-autor-v1")] // api/autores/{id}
         public async Task<ActionResult> Delete(int id)
         {
