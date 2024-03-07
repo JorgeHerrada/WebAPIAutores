@@ -65,6 +65,7 @@ namespace WebAppAutores
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIAutores", Version = "v1" });
                 c.SwaggerDoc("v2", new OpenApiInfo { Title = "WebAPIAutores", Version = "v2" });
                 c.OperationFilter<AddParamHATEOAS>(); // filter to add the includeHATEOAS param
+                c.OperationFilter<AddParamXVersion>();
 
                 // Configure swagger to send JWT
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

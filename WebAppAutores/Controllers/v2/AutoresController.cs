@@ -14,7 +14,9 @@ namespace WebAppAutores.Controllers.v2
     // access only with EsAdmin field in claim
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")]
     [ApiController]         // defines its an api controler
-    [Route("api/v2/autores")]  // defines the api route
+    [Route("api/autores")]  // defines the api route
+    [HeaderIs("x-version", "2")]
+    //[Route("api/v2/autores")]  // defines the api route
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
