@@ -7,18 +7,18 @@ using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
 using WebAppAutores.DTOs;
 
-namespace WebAppAutores.Controllers
+namespace WebAppAutores.Controllers.v1
 {
     [ApiController]
-    [Route("api/libros/{libroId:int}/comentarios")] // Comentarios depends on Libro existence
-    public class ComentariosController: ControllerBase
+    [Route("api/v1/libros/{libroId:int}/comentarios")] // Comentarios depends on Libro existence
+    public class ComentariosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly UserManager<IdentityUser> userManager;
 
         public ComentariosController(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             IMapper mapper,
             UserManager<IdentityUser> userManager
         )

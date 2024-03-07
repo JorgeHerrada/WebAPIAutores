@@ -10,11 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using WebAppAutores.DTOs;
 using WebAppAutores.Servicios;
 
-namespace WebAppAutores.Controllers
+namespace WebAppAutores.Controllers.v1
 {
     [ApiController]
-    [Route("api/cuentas")]
-    public class CuentasController: ControllerBase
+    [Route("api/v1/cuentas")]
+    public class CuentasController : ControllerBase
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
@@ -23,7 +23,7 @@ namespace WebAppAutores.Controllers
         private readonly IDataProtector dataProtector;
 
         public CuentasController(
-            UserManager<IdentityUser> userManager, 
+            UserManager<IdentityUser> userManager,
             IConfiguration configuration,
             SignInManager<IdentityUser> signInManager,
             IDataProtectionProvider dataProtectionProvider, // for encryption
@@ -46,7 +46,7 @@ namespace WebAppAutores.Controllers
                 UserName = credencialesUsuario.Email,
                 Email = credencialesUsuario.Email
             };
-            
+
             var result = await userManager.CreateAsync(user, credencialesUsuario.Password);
 
             if (result.Succeeded)
@@ -63,7 +63,7 @@ namespace WebAppAutores.Controllers
         public async Task<ActionResult<RespuestaAutenticationDTO>> Login(CredencialesUsuarioDTO credencialesUsuario)
         {
             var result = await signInManager.PasswordSignInAsync(
-                    credencialesUsuario.Email, 
+                    credencialesUsuario.Email,
                     credencialesUsuario.Password,
                     isPersistent: false,
                     lockoutOnFailure: false
@@ -136,10 +136,10 @@ namespace WebAppAutores.Controllers
             var expiration = DateTime.UtcNow.AddYears(1); // should be just minutes in case of a reall app
 
             var securityToken = new JwtSecurityToken(
-                issuer: null, 
-                audience: null, 
-                claims: claims, 
-                expires: expiration, 
+                issuer: null,
+                audience: null,
+                claims: claims,
+                expires: expiration,
                 signingCredentials: creds
             );
 

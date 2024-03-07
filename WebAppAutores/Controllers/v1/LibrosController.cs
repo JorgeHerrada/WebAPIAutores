@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using WebAppAutores.Controllers.Entidades;
 using WebAppAutores.DTOs;
 
-namespace WebAppAutores.Controllers
+namespace WebAppAutores.Controllers.v1
 {
     // decorators
     [ApiController]         // defines its an api controler
-    [Route("api/libros")]   // defines the api route
-    public class LibrosController: ControllerBase
+    [Route("api/v1/libros")]   // defines the api route
+    public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
@@ -27,7 +27,7 @@ namespace WebAppAutores.Controllers
             var libro = await context.Libros
                 .Include(libroDB => libroDB.AutoresLibros) // go into AutoresLibros
                 .ThenInclude(autorLibroDB => autorLibroDB.Autor)  //  go into Autor
-                //.Include(libroDB => libroDB.Comentarios) // Adds the comments using JOIN behind
+                                                                  //.Include(libroDB => libroDB.Comentarios) // Adds the comments using JOIN behind
                 .FirstOrDefaultAsync(libroDB => libroDB.Id == id);
 
             if (libro == null) { return NotFound(); }
@@ -70,7 +70,7 @@ namespace WebAppAutores.Controllers
             // map to LibroDTO
             var libroDTO = mapper.Map<LibroDTO>(libro);
 
-            return CreatedAtRoute("obtener-libro", new {id  = libro.Id}, libroDTO);
+            return CreatedAtRoute("obtener-libro", new { id = libro.Id }, libroDTO);
         }
 
         [HttpPut("{id:int}", Name = "actualizar-libro")]
@@ -112,7 +112,7 @@ namespace WebAppAutores.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:int}", Name ="patch-libro")]
+        [HttpPatch("{id:int}", Name = "patch-libro")]
         public async Task<ActionResult> Patch(int id, JsonPatchDocument<LibroPatchDTO> patchDocument)
         {
             if (patchDocument == null)
@@ -131,7 +131,7 @@ namespace WebAppAutores.Controllers
 
             var validData = TryValidateModel(libroPatchDTO); // validate contrains
 
-            if (! validData)
+            if (!validData)
             {
                 return BadRequest();
             }

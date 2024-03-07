@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebAppAutores.DTOs;
 
-namespace WebAppAutores.Controllers
+namespace WebAppAutores.Controllers.v1
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/v1")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RootController : ControllerBase
     {
@@ -36,8 +36,8 @@ namespace WebAppAutores.Controllers
                 descripcion: "autores",
                 metodo: "GET"
             ));
-            
-            if ( esAdmin.Succeeded)
+
+            if (esAdmin.Succeeded)
             {
                 datosHateoas.Add(new DatoHATEOSDTO(
                     enlace: Url.Link("crear-autor", new { }),

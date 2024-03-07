@@ -7,14 +7,14 @@ using WebAppAutores.Controllers.Entidades;
 using WebAppAutores.DTOs;
 using WebAppAutores.Utilities;
 
-namespace WebAppAutores.Controllers
+namespace WebAppAutores.Controllers.v2
 {
     // decorators
     // ALL endpoints protected, needs authentication
     // access only with EsAdmin field in claim
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")] 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")]
     [ApiController]         // defines its an api controler
-    [Route("api/autores")]  // defines the api route
+    [Route("api/v2/autores")]  // defines the api route
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -32,19 +32,20 @@ namespace WebAppAutores.Controllers
         }
 
         // we can have multiple routes pointing to this endpoint
-        [HttpGet(Name = "obtener-autores")] // api/autores -> based on the Route above
+        [HttpGet(Name = "obtener-autores-v2")] // api/autores -> based on the Route above
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // protect endpoint
         [AllowAnonymous] // Authentication not needed on this endpoint
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
         public async Task<ActionResult<List<AutorDTO>>> Get() // async MUST return Task<>
         {
             var autores = await context.Autores.ToListAsync();
+            autores.ForEach(autor => autor.Nombre = autor.Nombre.ToUpper());
             var dto = mapper.Map<List<AutorDTO>>(autores);
             return dto;
         }
 
         // Returns Autor based on ID received
-        [HttpGet("{id:int}",Name = "obtener-autor-por-id")] // ':int' its a restriction on the route valiable
+        [HttpGet("{id:int}", Name = "obtener-autor-por-id-v2")] // ':int' its a restriction on the route valiable
         [AllowAnonymous]
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
         public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
@@ -54,7 +55,8 @@ namespace WebAppAutores.Controllers
                 .ThenInclude(autorLibroDB => autorLibroDB.Libro)    // access Libros list in AutorLibroTable
                 .FirstOrDefaultAsync(autorDB => autorDB.Id == id);
 
-            if (autor == null) {
+            if (autor == null)
+            {
                 return NotFound();
             }
 
@@ -64,15 +66,15 @@ namespace WebAppAutores.Controllers
         }
 
         // Returns Autor based on Nombre, list with all that matches
-        [HttpGet("{nombre}", Name = "obtener-autor-por-nombre")] 
-        public async Task<ActionResult<List<AutorDTO>>> GetByName([FromRoute]string nombre)
+        [HttpGet("{nombre}", Name = "obtener-autor-por-nombre-v2")]
+        public async Task<ActionResult<List<AutorDTO>>> GetByName([FromRoute] string nombre)
         {
             var autores = await context.Autores.Where(autorDB => autorDB.Nombre.Contains(nombre)).ToListAsync();
 
             return mapper.Map<List<AutorDTO>>(autores);
         }
 
-        [HttpPost(Name = "crear-autor")]
+        [HttpPost(Name = "crear-autor-v2")]
         public async Task<ActionResult> Post([FromBody] AutorCreationDTO autorCreationDTO)
         {
             var autorExist = await context.Autores.AnyAsync(autorDB => autorDB.Nombre == autorCreationDTO.Nombre);
@@ -94,11 +96,11 @@ namespace WebAppAutores.Controllers
             var autorDTO = mapper.Map<AutorDTO>(autor); // mapp to AutorDTO
 
             // HTTP 201 - Created, shares route to find autor and return it
-            return CreatedAtRoute("obtener-autor-por-id", new {id = autor.Id}, autorDTO);  
+            return CreatedAtRoute("obtener-autor-por-id-v2", new { id = autor.Id }, autorDTO);
         }
 
         // param gets concatenated to the api route
-        [HttpPut("{id:int}", Name = "actualizar-autor")] // api/autores/{id}
+        [HttpPut("{id:int}", Name = "actualizar-autor-v2")] // api/autores/{id}
         public async Task<ActionResult> Put(AutorCreationDTO autorCreationDTO, int id)
         {
             // author with the received ID exist in the DB?
@@ -120,7 +122,7 @@ namespace WebAppAutores.Controllers
             return NoContent(); // 204
         }
 
-        [HttpDelete("{id:int}", Name = "borrar-autor")] // api/autores/{id}
+        [HttpDelete("{id:int}", Name = "borrar-autor-v2")] // api/autores/{id}
         public async Task<ActionResult> Delete(int id)
         {
             // author with the received ID exist in the DB
