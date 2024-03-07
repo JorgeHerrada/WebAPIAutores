@@ -36,6 +36,7 @@ namespace WebAppAutores
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(MyExceptionFilter));
+                options.Conventions.Add(new SwaggerGroupByVersion());
             }).AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles).
                 AddNewtonsoftJson(); // for the HTTP patch that uses JsonPatchDocument
@@ -62,6 +63,7 @@ namespace WebAppAutores
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIAutores", Version = "v1" });
+                c.SwaggerDoc("v2", new OpenApiInfo { Title = "WebAPIAutores", Version = "v2" });
                 c.OperationFilter<AddParamHATEOAS>(); // filter to add the includeHATEOAS param
 
                 // Configure swagger to send JWT
@@ -126,7 +128,11 @@ namespace WebAppAutores
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIAutores v1");
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", "WebAPIAutores v2");
+                });
             }
 
             app.UseHttpsRedirection();
